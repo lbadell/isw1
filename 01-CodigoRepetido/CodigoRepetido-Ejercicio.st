@@ -13,10 +13,13 @@ TestCase subclass: #IdiomTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!IdiomTest methodsFor: 'testing' stamp: 'Luis 4/12/2018 20:46:42'!
+!IdiomTest methodsFor: 'testing' stamp: 'A 4/16/2018 14:11:49'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
-
-	self testDeTiempoConPrecondicion:[:aCustomerBook| ]operacionAMedir:[:aCustomerBook | aCustomerBook addCustomerNamed: 'John Lennon']menorAEsteTiempo:50.
+	|customerBook|
+	
+	customerBook  := CustomerBook  new.	
+	
+	self testDeTiempoConPrecondicion:[] operacionAMedir:[customerBook addCustomerNamed: 'John Lennon'] menorAEsteTiempo:50.
 
 	"Nothing more expected ->| customerBook millisecondsBeforeRunning millisecondsAfterRunning |
 	
@@ -30,10 +33,14 @@ test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 	"
 ! !
 
-!IdiomTest methodsFor: 'testing' stamp: 'Luis 4/12/2018 20:52:08'!
+!IdiomTest methodsFor: 'testing' stamp: 'A 4/16/2018 14:13:23'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
-
-	self testDeTiempoConPrecondicion:[:aCustomerBook | aCustomerBook addCustomerNamed: 'Paul McCartney'] operacionAMedir:[:aCustomerBook | aCustomerBook removeCustomerNamed: 'Paul McCartney']menorAEsteTiempo:100.
+	|customerBook oneCustomer|
+	
+	oneCustomer := 'Paul McCartney'.
+	customerBook  := CustomerBook  new.	
+	
+	self testDeTiempoConPrecondicion:[customerBook addCustomerNamed: oneCustomer] operacionAMedir:[customerBook removeCustomerNamed: oneCustomer] menorAEsteTiempo:100.
 
 	"| customerBook millisecondsBeforeRunning millisecondsAfterRunning paulMcCartney |
 	
@@ -50,7 +57,7 @@ test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 	
 "! !
 
-!IdiomTest methodsFor: 'testing' stamp: 'Luis 4/12/2018 21:36:28'!
+!IdiomTest methodsFor: 'testing' stamp: 'A 4/16/2018 14:15:48'!
 test03CanNotAddACustomerWithEmptyName 
 	|customerBook|
 	
@@ -58,7 +65,8 @@ test03CanNotAddACustomerWithEmptyName
 
 	self testDeFallaDe:	
 		[customerBook addCustomerNamed: ''.
-		self fail ]  
+		self fail ]
+	esperandoError: Error
 	manteniendoLasCondiciones:
 		[:anError | self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
 		self assert: customerBook isEmpty ] 
@@ -77,7 +85,7 @@ test03CanNotAddACustomerWithEmptyName
 		
 		"! !
 
-!IdiomTest methodsFor: 'testing' stamp: 'Luis 4/12/2018 21:39:17'!
+!IdiomTest methodsFor: 'testing' stamp: 'A 4/16/2018 14:16:02'!
 test04CanNotRemoveAnInvalidCustomer
 	| customerBook johnLennon |
 			
@@ -89,6 +97,7 @@ test04CanNotRemoveAnInvalidCustomer
 	self testDeFallaDe:
 		[customerBook removeCustomerNamed: 'Paul McCartney'.
 		self fail ] 
+	esperandoError: NotFound
 	manteniendoLasCondiciones:
 		[:anError | self assert: customerBook numberOfCustomers = 1.
 		self assert: (customerBook includesCustomerNamed: johnLennon)] 
@@ -109,11 +118,11 @@ test04CanNotRemoveAnInvalidCustomer
 "! !
 
 
-!IdiomTest methodsFor: 'Funciones Auxiliares' stamp: 'Luis 4/12/2018 21:40:02'!
-testDeFallaDe:unClosure manteniendoLasCondiciones:otroClosure 
+!IdiomTest methodsFor: 'Funciones Auxiliares' stamp: 'A 4/16/2018 14:14:59'!
+testDeFallaDe:unClosure esperandoError: unError manteniendoLasCondiciones:otroClosure 
 	
 	unClosure 
-	on: Error 
+	on: unError 
 	do: otroClosure
 	
 	"
@@ -125,54 +134,16 @@ testDeFallaDe:unClosure manteniendoLasCondiciones:otroClosure
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
 "! !
 
-!IdiomTest methodsFor: 'Funciones Auxiliares' stamp: 'Luis 4/12/2018 20:43:37'!
+!IdiomTest methodsFor: 'Funciones Auxiliares' stamp: 'A 4/16/2018 14:10:52'!
 testDeTiempoConPrecondicion:unClosure operacionAMedir:OtroClosure menorAEsteTiempo:tiempo
 
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning  |
+	| millisecondsBeforeRunning millisecondsAfterRunning  |
 	
-	customerBook := CustomerBook  new.
-	
-	unClosure value:customerBook. 
+	unClosure value. 
 	millisecondsBeforeRunning := Time millisecondClockValue.
-	OtroClosure value:customerBook .
-	millisecondsAfterRunning := Time millisecondClockValue.
-	"customerBook addCustomerNamed: paulMcCartney.
-	  
-	millisecondsBeforeRunning := Time millisecondClockValue.
-	customerBook removeCustomerNamed: paulMcCartney.
-	millisecondsAfterRunning := Time millisecondClockValue.
-	"
-	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < tiempo 
-	! !
-
-!IdiomTest methodsFor: 'Funciones Auxiliares' stamp: 'Luis 4/12/2018 20:25:24'!
-xx:unClosure
-
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning  |
-	
-	customerBook := CustomerBook  new.
-	
-	
-	"customerBook addCustomerNamed: paulMcCartney.
-	  
-	millisecondsBeforeRunning := Time millisecondClockValue.
-	customerBook removeCustomerNamed: paulMcCartney.
+	OtroClosure value .
 	millisecondsAfterRunning := Time millisecondClockValue.
 	
-	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < 100 
-	"! !
-
-!IdiomTest methodsFor: 'Funciones Auxiliares' stamp: 'Luis 4/12/2018 20:33:28'!
-xx:unClosure yy:OtroClosure zz:tiempo
-
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning  |
-	
-	customerBook := CustomerBook  new.
-	
-	unClosure value:customerBook. 
-	millisecondsBeforeRunning := Time millisecondClockValue.
-	OtroClosure value:customerBook .
-	millisecondsAfterRunning := Time millisecondClockValue.
 	"customerBook addCustomerNamed: paulMcCartney.
 	  
 	millisecondsBeforeRunning := Time millisecondClockValue.
