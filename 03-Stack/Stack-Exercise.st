@@ -137,24 +137,16 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 ! !
 
 
-!classDefinition: #EmptyStack category: #'Stack-Exercise'!
-Object subclass: #EmptyStack
+!classDefinition: #EndOfStack category: #'Stack-Exercise'!
+Object subclass: #EndOfStack
 	instanceVariableNames: 'elementList'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!EmptyStack methodsFor: 'as yet unclassified' stamp: 'A 4/20/2018 15:49:29'!
-initializeInstance
-	elementList := OrderedCollection new.! !
-
-!EmptyStack methodsFor: 'as yet unclassified' stamp: 'A 4/20/2018 15:38:39'!
-isEmpty
-	^true.! !
-
-!EmptyStack methodsFor: 'as yet unclassified' stamp: 'A 4/20/2018 15:40:32'!
-top
-	^self error: OOStack stackEmptyErrorDescription.! !
+!EndOfStack methodsFor: 'accessing' stamp: 'A 4/26/2018 15:32:14'!
+peekCurrentValue
+	^ self error: OOStack stackEmptyErrorDescription.! !
 
 
 !classDefinition: #OOStack category: #'Stack-Exercise'!
@@ -173,14 +165,14 @@ El mensaje size tiene en cuenta que contiene un elemento de más, el stack vacío,
 !
 
 
-!OOStack methodsFor: 'Solucion' stamp: 'A 4/20/2018 16:20:30'!
+!OOStack methodsFor: 'Solucion' stamp: 'A 4/26/2018 15:27:39'!
 initializeInstance
-	stackList := OrderedCollection new.
-	stackList addFirst: EmptyStack new! !
+	stackList _ OrderedCollection new.
+	stackList addFirst: EndOfStack new.! !
 
-!OOStack methodsFor: 'Solucion' stamp: 'A 4/20/2018 16:19:17'!
+!OOStack methodsFor: 'Solucion' stamp: 'A 4/26/2018 15:30:25'!
 isEmpty
-	^(stackList at: 1) isEmpty.! !
+	^self size = 0.! !
 
 !OOStack methodsFor: 'Solucion' stamp: 'A 4/20/2018 16:14:40'!
 pop
@@ -191,20 +183,19 @@ pop
 	^topElement 
 		! !
 
-!OOStack methodsFor: 'Solucion' stamp: 'A 4/20/2018 16:06:13'!
+!OOStack methodsFor: 'Solucion' stamp: 'A 4/26/2018 15:34:05'!
 push: anElement
-	|newSingleStack|
-	newSingleStack := SingleElementStack with: anElement.
-	
-	stackList addFirst: newSingleStack.! !
+	| newSingleStackElement |
+	newSingleStackElement _ SingleStackElement with: anElement.
+	stackList addFirst: newSingleStackElement.! !
 
 !OOStack methodsFor: 'Solucion' stamp: 'A 4/20/2018 16:11:51'!
 size
 	^stackList size -1.! !
 
-!OOStack methodsFor: 'Solucion' stamp: 'A 4/20/2018 16:14:29'!
+!OOStack methodsFor: 'Solucion' stamp: 'A 4/26/2018 15:32:52'!
 top
-	^(stackList at: 1) top.! !
+	^(stackList at: 1) peekCurrentValue .! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -224,32 +215,29 @@ new
 ^super new initializeInstance! !
 
 
-!classDefinition: #SingleElementStack category: #'Stack-Exercise'!
-Object subclass: #SingleElementStack
+!classDefinition: #SingleStackElement category: #'Stack-Exercise'!
+Object subclass: #SingleStackElement
 	instanceVariableNames: 'singleElement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SingleElementStack methodsFor: 'as yet unclassified' stamp: 'A 4/20/2018 16:08:21'!
+!SingleStackElement methodsFor: 'initialization' stamp: 'A 4/20/2018 16:08:21'!
 initializeInstance: anElement
 	singleElement := anElement.! !
 
-!SingleElementStack methodsFor: 'as yet unclassified' stamp: 'A 4/20/2018 15:37:11'!
-isEmpty
-	^false! !
 
-!SingleElementStack methodsFor: 'as yet unclassified' stamp: 'A 4/20/2018 16:09:48'!
-top
-	^singleElement.! !
+!SingleStackElement methodsFor: 'accessing' stamp: 'A 4/26/2018 15:32:35'!
+peekCurrentValue
+	^ singleElement.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'SingleElementStack class' category: #'Stack-Exercise'!
-SingleElementStack class
+!classDefinition: 'SingleStackElement class' category: #'Stack-Exercise'!
+SingleStackElement class
 	instanceVariableNames: ''!
 
-!SingleElementStack class methodsFor: 'as yet unclassified' stamp: 'A 4/20/2018 16:07:48'!
+!SingleStackElement class methodsFor: 'as yet unclassified' stamp: 'A 4/20/2018 16:07:48'!
 with: anElement
 
 	^self new initializeInstance: anElement! !
