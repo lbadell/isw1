@@ -201,7 +201,7 @@ test15PortfolioTransactionsIsTheUnionOftsAccountsTransactions
 	self assert: (composedPortfolio transactions includes: deposit3).
 ! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'Luis & Alexis 5/7/2018 21:33:50'!
+!PortfolioTest methodsFor: 'tests' stamp: 'HernanWilkinson 9/12/2011 13:23'!
 test16PortfolioKnowsItsAccountsTransactions 
 
 	| account1 account2 account3 complexPortfolio composedPortfolio deposit1 |
@@ -214,7 +214,7 @@ test16PortfolioKnowsItsAccountsTransactions
 		
 	deposit1 := Deposit register: 100 on: account1.
 		
-	"self assert: 1= (composedPortfolio transactionsOf:account1) size ."
+	self assert: 1= (composedPortfolio transactionsOf:account1) size .
 	self assert: ((composedPortfolio transactionsOf: account1) includes:deposit1).! !
 
 !PortfolioTest methodsFor: 'tests' stamp: 'HernanWilkinson 9/12/2011 13:23'!
@@ -403,53 +403,49 @@ balance
 
 !classDefinition: #Portfolio category: #'Portfolio-Ejercicio'!
 SummarizingAccount subclass: #Portfolio
-	instanceVariableNames: 'accounts'
+	instanceVariableNames: 'subaccounts'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!Portfolio methodsFor: 'balance' stamp: 'Luis & Alexis 5/7/2018 20:56:30'!
+!Portfolio methodsFor: 'balance' stamp: 'ab 5/9/2018 11:22:13'!
 balance
-
-	^ accounts inject: 0 into: [ :balance :accounts | balance + accounts balance ]
-
-"	self shouldBeImplemented ."! !
-
-!Portfolio methodsFor: 'balance' stamp: 'Luis & Alexis 5/7/2018 20:49:13'!
-initializeWith: cuentas 
-
-	accounts := cuentas ! !
+	^subaccounts inject: 0 into: [ :balance :anAccount | balance + anAccount balance ]! !
 
 
-!Portfolio methodsFor: 'testing' stamp: 'Luis & Alexis 5/7/2018 21:08:04'!
+!Portfolio methodsFor: 'testing' stamp: 'ab 5/9/2018 11:30:42'!
 manages: anAccount
 
-		^accounts inject:false into: [ :result :accounts | result or: [ accounts manages: anAccount ]].
-! !
+		^subaccounts inject: self = anAccount into: [ :manages :oneAccount | manages or: (oneAccount manages: anAccount)]! !
 
-!Portfolio methodsFor: 'testing' stamp: 'Luis & Alexis 5/7/2018 21:05:33'!
-registers: aTtransaction
+!Portfolio methodsFor: 'testing' stamp: 'ab 5/9/2018 11:26:05'!
+registers: aTransaction
 
-		^accounts inject:false into: [ :result :accounts | result or: [ accounts registers: aTtransaction ]].
-		
+	^subaccounts inject: false into: [ :registers :anAccount | registers or: (anAccount registers: aTransaction)]! !
 
 
-	"self shouldBeImplemented "! !
-
-
-!Portfolio methodsFor: 'transactions' stamp: 'Luis & Alexis 5/7/2018 21:20:51'!
+!Portfolio methodsFor: 'transactions' stamp: 'ab 5/9/2018 12:14:57'!
 transactions 
+	|subtransactions|
+	subtransactions _ OrderedCollection new.
+	subaccounts do: [:anAccount | (anAccount transactions) do: [:aTransaction | subtransactions add: aTransaction ] ].
+	^subtransactions ! !
 
-	^accounts inject:OrderedCollection new into: [ :result :accounts | result ,  accounts transactions ].
-
-
-! !
-
-!Portfolio methodsFor: 'transactions' stamp: 'Luis & Alexis 5/7/2018 21:25:13'!
+!Portfolio methodsFor: 'transactions' stamp: 'ab 5/9/2018 14:25:57'!
 transactionsOf: anAccount 
+	|relevantSubaccounts|
+	
+	self = anAccount ifTrue: [^self transactions ].
+	
+	relevantSubaccounts _ subaccounts select: [:anotherAccount | anotherAccount manages: anAccount ].
+	relevantSubaccounts isEmpty ifTrue: [^ self error: Portfolio accountNotManagedMessageDescription].
+	
+	^relevantSubaccounts first transactionsOf: anAccount.! !
 
-	^(accounts  select: [:account | anAccount = account ]) first transactions 
-	! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'ab 5/9/2018 11:43:11'!
+initializeWith: accounts
+	subaccounts _ accounts.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -457,18 +453,22 @@ transactionsOf: anAccount
 Portfolio class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'instance creation' stamp: 'Luis & Alexis 5/7/2018 20:52:19'!
-with: anAccount1 with: anAccount2
-	
-	|accounts| 
-	accounts  := OrderedCollection  with: anAccount1  with: anAccount2  .
-	^self new initializeWith:  accounts . 
-"	
-	self new initializeWith:  origin: 
-	|Resultado|
-	Resultado := anAccount1  
+!Portfolio class methodsFor: 'instance creation' stamp: 'ab 5/9/2018 14:35:24'!
+accountAlreadyManagedErrorMessage
+	^ 'Account already managed'! !
 
-	self shouldBeImplemented "! !
+!Portfolio class methodsFor: 'instance creation' stamp: 'ab 5/9/2018 12:38:45'!
+accountNotManagedMessageDescription
+	^ 'Account not managed'! !
+
+!Portfolio class methodsFor: 'instance creation' stamp: 'ab 5/9/2018 14:38:23'!
+with: anAccount1 with: anAccount2
+	|accounts|
+	( (anAccount1 manages: anAccount2) or: (anAccount2 manages: anAccount1 ) ) ifTrue: [^ self error: Portfolio accountAlreadyManagedErrorMessage ].
+	
+	accounts _ OrderedCollection with: anAccount1  with: anAccount2.
+	
+	^self new initializeWith: accounts ! !
 
 !Portfolio class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:41'!
 withAll: aCollectionOfAccounts
@@ -490,11 +490,6 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'Luis & Alexis 5/7/2018 21:36:13'!
-deposit:aNumber
-
-	transactions := transactions +aNumber .! !
-
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
 
@@ -505,6 +500,11 @@ register: aTransaction
 transactions 
 
 	^ transactions copy! !
+
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'ab 5/9/2018 14:17:18'!
+transactionsOf: anAccount 
+
+	^ (self manages: anAccount) ifTrue: [^self transactions ] ifFalse: [^ self error: Portfolio accountNotManagedMessageDescription]! !
 
 
 !ReceptiveAccount methodsFor: 'balance' stamp: 'HernanWilkinson 7/13/2011 18:36'!
@@ -524,8 +524,4 @@ manages: anAccount
 registers: aTtransaction
 
 	^ transactions includes: aTtransaction 
-! !
-
-!ReceptiveAccount methodsFor: 'testing' stamp: 'Luis & Alexis 5/7/2018 21:27:13'!
-transactionsOf:anAccount
 ! !
