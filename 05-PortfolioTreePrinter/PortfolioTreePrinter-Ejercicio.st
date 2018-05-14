@@ -506,10 +506,13 @@ test29ReversePortfolioTreePrinterPrintsTheCompositeStartingFromTheLeaves
 	! !
 
 
-!PortfolioTest methodsFor: 'test support' stamp: 'HAW 9/25/2017 21:44:47'!
+!PortfolioTest methodsFor: 'test support' stamp: 'Luis & alexis 5/14/2018 18:28:54'!
 accountSummaryLinesOf: aReceptiveAccount 
 	
-	^aReceptiveAccount accountSummary! !
+	^(AccountSummary with:aReceptiveAccount) value
+	
+	
+	"^aReceptiveAccount accountSummary"! !
 
 !PortfolioTest methodsFor: 'test support' stamp: 'A 5/13/2018 06:41:22'!
 accountTransferNetOf: aReceptiveAccount 
@@ -535,6 +538,70 @@ portofolioTreeOf: aPortfolio namingAccountWith: aDictionary
 reversePortofolioTreeOf: aPortfolio namingAccountWith: aDictionary 
 	
 	self shouldBeImplemented ! !
+
+
+!classDefinition: #AccountSummary category: #'PortfolioTreePrinter-Ejercicio'!
+Object subclass: #AccountSummary
+	instanceVariableNames: 'anAccount summaryLines'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:25:32'!
+evaluateWithCertificateOfDeposit:aCertificateOfDeposit
+
+	^summaryLines add: 'Plazo fijo por ', aCertificateOfDeposit value printString, ' durante ', aCertificateOfDeposit numberOfDays printString, ' dias a una tna de ', aCertificateOfDeposit percentageOfTNA printString, '%' .! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:25:40'!
+evaluateWithDeposit:aDeposit
+
+	^summaryLines add: 'Deposito por ' , aDeposit value printString .! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:25:45'!
+evaluateWithTransferDeposit:aTransferDeposit
+
+	^summaryLines add: 'Transferencia por ' , aTransferDeposit value printString .! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:25:57'!
+evaluateWithTransferWithdraw:aTransferWithdraw
+
+	^summaryLines add: 'Transferencia por -' , aTransferWithdraw value printString .! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:26:02'!
+evaluateWithWithdraw:aWithdraw
+
+	^summaryLines add: 'Extraccion por ' , aWithdraw value printString .! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:01:58'!
+initializeWith:oneAccount
+
+	anAccount := oneAccount .
+	summaryLines := OrderedCollection new .! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:10:16'!
+value
+
+	summaryLines := OrderedCollection new.
+	 anAccount transactions do: [:aTransaction | aTransaction dispatchTo: self].
+	^ summaryLines .
+		
+		
+		
+		
+		
+		
+		! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'AccountSummary class' category: #'PortfolioTreePrinter-Ejercicio'!
+AccountSummary class
+	instanceVariableNames: ''!
+
+!AccountSummary class methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:23:56'!
+with:anAccount
+
+	^ self new initializeWith:anAccount ! !
 
 
 !classDefinition: #AccountTransaction category: #'PortfolioTreePrinter-Ejercicio'!
@@ -588,6 +655,11 @@ initializeWith: anAmount during: aPeriodOfDays at: aTNA on: aReceptiveAccount
 	aReceptiveAccount register: self.! !
 
 
+!CertificateOfDeposit methodsFor: 'value' stamp: 'Luis & alexis 5/14/2018 18:20:53'!
+dispatchTo:anotherObject
+
+	^ anotherObject evaluateWithCertificateOfDeposit: self.! !
+
 !CertificateOfDeposit methodsFor: 'value' stamp: 'A 5/13/2018 15:04:44'!
 earnings
 	^(value*(tna/360)*numberOfDays) ! !
@@ -627,6 +699,11 @@ AccountTransaction subclass: #Deposit
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!Deposit methodsFor: 'initialization' stamp: 'Luis & alexis 5/14/2018 18:20:20'!
+dispatchTo:anotherObject
+
+	^ anotherObject evaluateWithDeposit: self.! !
 
 !Deposit methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:45'!
 initializeFor: aValue
@@ -708,6 +785,12 @@ value
 
 ^completeTransfer value.! !
 
+
+!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:06:04'!
+dispatchTo:anotherObject
+
+	^ anotherObject evaluateWithTransferDeposit: self.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'TransferDeposit class' category: #'PortfolioTreePrinter-Ejercicio'!
@@ -742,6 +825,11 @@ transfer
 
 ^completeTransfer .! !
 
+
+!TransferWithdraw methodsFor: 'initialization' stamp: 'Luis & alexis 5/14/2018 18:19:34'!
+dispatchTo:anotherObject
+
+	^ anotherObject evaluateWithTransferWithdraw: self.! !
 
 !TransferWithdraw methodsFor: 'initialization' stamp: 'A 5/10/2018 23:39:18'!
 initializeFor: aTransfer
@@ -788,6 +876,11 @@ AccountTransaction subclass: #Withdraw
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
+!Withdraw methodsFor: 'initialization' stamp: 'Luis & alexis 5/14/2018 18:20:37'!
+dispatchTo:anotherObject
+
+	^ anotherObject evaluateWithWithdraw: self.! !
+
 !Withdraw methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:46'!
 initializeFor: aValue
 
@@ -824,6 +917,42 @@ register: aValue on: account
 	account register: withdraw.
 		
 	^ withdraw! !
+
+
+!classDefinition: #NodePrinter category: #'PortfolioTreePrinter-Ejercicio'!
+Object subclass: #NodePrinter
+	instanceVariableNames: 'node level treePrinter'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!NodePrinter methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:44:40'!
+initializeWith: anNode at:aLevel on: aTreePrinter
+
+	node := anNode .
+	level := aLevel .
+	treePrinter := aTreePrinter .! !
+
+!NodePrinter methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:46:05'!
+printAccount:anAccount.
+
+! !
+
+!NodePrinter methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:46:24'!
+printPortfolio:anAccount.
+
+! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'NodePrinter class' category: #'PortfolioTreePrinter-Ejercicio'!
+NodePrinter class
+	instanceVariableNames: ''!
+
+!NodePrinter class methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:45:05'!
+with:anNode at:aLevel on:aTreePrinter
+
+	^ self new initializeWith: anNode at:aLevel on:aTreePrinter .! !
 
 
 !classDefinition: #SummarizingAccount category: #'PortfolioTreePrinter-Ejercicio'!
@@ -1045,6 +1174,10 @@ accountTransferNet
 
 	^ result.! !
 
+!ReceptiveAccount methodsFor: 'MAL' stamp: 'Luis & alexis 5/14/2018 18:03:56'!
+dispatchTo:anotherObject
+! !
+
 
 !classDefinition: #Transfer category: #'PortfolioTreePrinter-Ejercicio'!
 Object subclass: #Transfer
@@ -1078,3 +1211,58 @@ Transfer class
 register: anAmount from: fromAccount to: toAccount
 
 	^self new initializeFor: anAmount from: fromAccount to: toAccount.! !
+
+
+!classDefinition: #TreePrinter category: #'PortfolioTreePrinter-Ejercicio'!
+Object subclass: #TreePrinter
+	instanceVariableNames: 'root buffer diccionario'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!TreePrinter methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:34:32'!
+initializeWith:anAccount
+	buffer := OrderedCollection new.
+	root:= anAccount 
+	! !
+
+!TreePrinter methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 19:04:34'!
+initializeWith: anAccount and:aDictionary .	
+	buffer := OrderedCollection new.
+	root:= anAccount .
+	diccionario := aDictionary .
+	! !
+
+!TreePrinter methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:37:54'!
+print:anAccount! !
+
+!TreePrinter methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:38:22'!
+print:anAccount atLevel:anLevel 
+
+	! !
+
+!TreePrinter methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:32:58'!
+reverseValue! !
+
+!TreePrinter methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 19:07:46'!
+value
+
+	self print: root atLevel:0.
+
+	! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TreePrinter class' category: #'PortfolioTreePrinter-Ejercicio'!
+TreePrinter class
+	instanceVariableNames: ''!
+
+!TreePrinter class methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 18:33:47'!
+with:anAccount
+
+^ self new initializeWith: anAccount! !
+
+!TreePrinter class methodsFor: 'as yet unclassified' stamp: 'Luis & alexis 5/14/2018 19:03:38'!
+with:anAccount and:aDictionary
+
+^ self new initializeWith: anAccount and:aDictionary .! !
