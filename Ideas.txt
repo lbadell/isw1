@@ -1,0 +1,39 @@
+Clase 7-6-18
+
+La metafora es como un ancla para entender el problema
+
+Lo que diferencia un carrito de una collecion es el hecho de prohibir agregar cosas que no deberias
+
+El rol esta dado por los mensajes , un comportamiento especializado
+
+
+Inicialmente que conozca un catalogo que sea una collecion, el catalogo no necesita al principio tener su propia
+clase
+
+Cada vez que testeo excepciones, ademas de chequear el mensaje de error, fijarse que no cambio el carrito
+
+En los lenguajes dinamicamente tipados , hace falta verificar que la cantidad sea un numero natural
+Es un problema funcional
+
+Bag , multi conjunto es una implementacionn particular de diccionario
+
+SIEMPRE CONSULTAR AL PRODUCT OWNER
+
+Porque es importante empezar por el producto y no por la interfaz
+
+Le damos mas importancia a la interfaz
+
+Si lo tengo en la interfaz, cada interfaz va a tener que hacer el chequeo
+
+
+Los tests que haganmos tienen que tener en cuenta la hora de la maquina en la cual se corren
+
+Test Tarjeta vencida tiene que andar siempre
+
+
+La cashier reciba el ticket junto con la tarjeta y que haga magia
+Tarjeta se manda a cashier para debitarse a si misma el saldo de los libros
+
+
+
+carritoLoco - Pass de la primera iteracion
