@@ -370,9 +370,9 @@ invalidItemErrorMessage
 	^'Item is not in price list'! !
 
 
-!Cashier methodsFor: 'assertions' stamp: 'A 6/11/2018 01:21:37'!
+!Cashier methodsFor: 'assertions' stamp: 'AB 6/11/2018 11:25:23'!
 assertCardNotExpired: aCreditCard 
-	aCreditCard expirationDate < monthOfYear ifTrue: [^self error: self cardExpiredErrorMessage]! !
+	(aCreditCard isExpiredAt: monthOfYear) ifTrue: [^self error: self cardExpiredErrorMessage]! !
 
 !Cashier methodsFor: 'assertions' stamp: 'A 6/10/2018 15:32:10'!
 assertIsValidItem: anItem
@@ -452,6 +452,10 @@ expirationDate
 !CreditCard methodsFor: 'accessing' stamp: 'A 6/11/2018 01:28:26'!
 id
 	^cardId.! !
+
+!CreditCard methodsFor: 'accessing' stamp: 'AB 6/11/2018 11:24:55'!
+isExpiredAt: aMonthOfTheYear
+	^self expirationDate < aMonthOfTheYear.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
