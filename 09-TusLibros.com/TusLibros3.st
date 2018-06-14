@@ -5,91 +5,77 @@ TestCase subclass: #CartTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:10'!
+!CartTest methodsFor: 'tests' stamp: 'AB 6/14/2018 10:53:59'!
 test01NewCartsAreCreatedEmpty
+	self assert: testObjectsFactory createEmptyCart isEmpty.! !
 
-	self assert: testObjectsFactory createCart isEmpty! !
-
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:10'!
+!CartTest methodsFor: 'tests' stamp: 'AB 6/14/2018 10:53:59'!
 test02CanNotAddItemsThatDoNotBelongToStore
-
 	| cart |
-	
-	cart := testObjectsFactory createCart.
-	
-	self 
+	cart _ testObjectsFactory createEmptyCart.
+	self
 		should: [ cart add: testObjectsFactory itemNotSellByTheStore ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = cart invalidItemErrorMessage.
-			self assert: cart isEmpty ]! !
+			self assert: cart isEmpty ].! !
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:10'!
+!CartTest methodsFor: 'tests' stamp: 'AB 6/14/2018 10:53:59'!
 test03AfterAddingAnItemTheCartIsNotEmptyAnymore
-
 	| cart |
-	
-	cart := testObjectsFactory createCart.
-	
+	cart _ testObjectsFactory createEmptyCart.
 	cart add: testObjectsFactory itemSellByTheStore.
-	self deny: cart isEmpty ! !
+	self deny: cart isEmpty.! !
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:10'!
+!CartTest methodsFor: 'tests' stamp: 'AB 6/14/2018 10:53:59'!
 test04CanNotAddNonPositiveNumberOfItems
-
 	| cart |
-	
-	cart := testObjectsFactory createCart.
-	
-	self 
-		should: [cart add: 0 of: testObjectsFactory itemSellByTheStore ]
+	cart _ testObjectsFactory createEmptyCart.
+	self
+		should: [
+			cart
+				add: 0
+				of: testObjectsFactory itemSellByTheStore ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = cart invalidQuantityErrorMessage.
-			self assert: cart isEmpty ]! !
+			self assert: cart isEmpty ].! !
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:10'!
+!CartTest methodsFor: 'tests' stamp: 'AB 6/14/2018 10:53:59'!
 test05CanNotAddMoreThanOneItemNotSellByTheStore
-
 	| cart |
-	
-	cart := testObjectsFactory createCart.
-	
-	self 
-		should: [cart add: 2 of: testObjectsFactory itemNotSellByTheStore  ]
+	cart _ testObjectsFactory createEmptyCart.
+	self
+		should: [
+			cart
+				add: 2
+				of: testObjectsFactory itemNotSellByTheStore ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = cart invalidItemErrorMessage.
-			self assert: cart isEmpty ]! !
+			self assert: cart isEmpty ].! !
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:11'!
+!CartTest methodsFor: 'tests' stamp: 'AB 6/14/2018 10:53:59'!
 test06CartRemembersAddedItems
-
 	| cart |
-	
-	cart := testObjectsFactory createCart.
-	
+	cart _ testObjectsFactory createEmptyCart.
 	cart add: testObjectsFactory itemSellByTheStore.
-	self assert: (cart includes: testObjectsFactory itemSellByTheStore)! !
+	self assert: (cart includes: testObjectsFactory itemSellByTheStore).! !
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:11'!
+!CartTest methodsFor: 'tests' stamp: 'AB 6/14/2018 10:53:59'!
 test07CartDoesNotHoldNotAddedItems
-
 	| cart |
-	
-	cart := testObjectsFactory createCart.
-	
-	self deny: (cart includes: testObjectsFactory itemSellByTheStore)! !
+	cart _ testObjectsFactory createEmptyCart.
+	self deny: (cart includes: testObjectsFactory itemSellByTheStore).! !
 
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 18:11'!
+!CartTest methodsFor: 'tests' stamp: 'AB 6/14/2018 10:53:59'!
 test08CartRemembersTheNumberOfAddedItems
-
 	| cart |
-	
-	cart := testObjectsFactory createCart.
-	
-	cart add: 2 of: testObjectsFactory itemSellByTheStore.
-	self assert: (cart occurrencesOf: testObjectsFactory itemSellByTheStore) = 2! !
+	cart _ testObjectsFactory createEmptyCart.
+	cart
+		add: 2
+		of: testObjectsFactory itemSellByTheStore.
+	self assert: (cart occurrencesOf: testObjectsFactory itemSellByTheStore) = 2.! !
 
 
 !CartTest methodsFor: 'setup' stamp: 'HernanWilkinson 6/17/2013 18:09'!
@@ -105,126 +91,106 @@ TestCase subclass: #CashierTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CashierTest methodsFor: 'testing' stamp: 'L 6/13/2018 17:44:34'!
-test01CanNotCheckoutAnEmptyCart
-
-	| salesBook aProcessor |	
-	salesBook := OrderedCollection new.
-	aProcessor _ MerchantProcessorMock with: [:aCashier | aCashier transactionMade].
-	self 
-		should: [ Cashier 
-			toCheckout: testObjectsFactory createCart 
-			charging: testObjectsFactory notExpiredCreditCard 
-			on: testObjectsFactory today
-			registeringOn:  salesBook 
-			withMerchantProcessor: aProcessor]
+!CashierTest methodsFor: 'testing' stamp: 'AB 6/14/2018 11:26:54'!
+checkErrorMessage: anErrorMessage WithProcessor: aProcessor AndCard: aCard
+	| cart cashier salesBook |
+	cart _ testObjectsFactory createSingleItemCart.
+	salesBook _ OrderedCollection new.
+	cashier _ Cashier
+		toCheckout: cart
+		charging: aCard
+		on: testObjectsFactory defaultMonthOfYear
+		registeringOn: salesBook
+		withMerchantProcessor: aProcessor.
+	self
+		should: [ cashier checkOut ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
-			self assert: anError messageText = Cashier cartCanNotBeEmptyErrorMessage.
-			self assert: salesBook isEmpty ]! !
+			self assert: anError messageText = anErrorMessage.
+			self assert: salesBook isEmpty ].! !
 
-!CashierTest methodsFor: 'testing' stamp: 'L 6/13/2018 16:32:45'!
-test02CalculatedTotalIsCorrect
+!CashierTest methodsFor: 'testing' stamp: 'AB 6/14/2018 11:40:00'!
+test01CanNotCheckoutAnEmptyCart
+	| salesBook aProcessor cart|
+	salesBook _ OrderedCollection new.
+	aProcessor _ MerchantProcessorMock with: [ :aCashier :value | aCashier transactionMadeWith: value].
+	cart _ testObjectsFactory createEmptyCart.
 
-	| cart cashier aProcessor|
-	
-
-	aProcessor _ MerchantProcessorMock with: [:aCashier | aCashier transactionMade].
-	cart := testObjectsFactory createCart.
-	cart add: 2 of: testObjectsFactory itemSellByTheStore.
-	
-	cashier :=  Cashier toCheckout: cart charging: testObjectsFactory notExpiredCreditCard on: testObjectsFactory today registeringOn: OrderedCollection new withMerchantProcessor: aProcessor..
-	self assert: cashier checkOut = (testObjectsFactory itemSellByTheStorePrice * 2)! !
-
-!CashierTest methodsFor: 'testing' stamp: 'L 6/13/2018 16:38:03'!
-test03CanNotCheckoutWithAnExpiredCreditCart
-
-	| cart salesBook aProcessor|
-
-	cart := testObjectsFactory createCart.
-	cart add: testObjectsFactory itemSellByTheStore.
-	salesBook := OrderedCollection new.
-	aProcessor _ MerchantProcessorMock with: [:aCashier | aCashier transactionMade ].
-	
 	self
-		should: [ Cashier 
-				toCheckout: cart 
-				charging: testObjectsFactory expiredCreditCard 
-				on: testObjectsFactory today
+		should: [
+			Cashier
+				toCheckout: cart
+				charging: testObjectsFactory notExpiredCreditCard
+				on: testObjectsFactory defaultMonthOfYear
 				registeringOn: salesBook
 				withMerchantProcessor: aProcessor ]
 		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :anError | 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = Cashier cartCanNotBeEmptyErrorMessage.
+			self assert: salesBook isEmpty ].! !
+
+!CashierTest methodsFor: 'testing' stamp: 'AB 6/14/2018 11:46:17'!
+test02CalculatedTotalIsCorrect
+	| cart cashier aProcessor |
+	aProcessor _ MerchantProcessorMock with: [ :aCashier :value | aCashier transactionMadeWith: value].
+	cart _ testObjectsFactory createEmptyCart.
+	cart add: 2 of: testObjectsFactory itemSellByTheStore.
+	cashier _ Cashier
+		toCheckout: cart
+		charging: testObjectsFactory notExpiredCreditCard
+		on: testObjectsFactory defaultMonthOfYear
+		registeringOn: OrderedCollection new
+		withMerchantProcessor: aProcessor.
+	self assert: cashier purchaseValue = (testObjectsFactory itemSellByTheStorePrice * 2).! !
+
+!CashierTest methodsFor: 'testing' stamp: 'AB 6/14/2018 11:40:09'!
+test03CanNotCheckoutWithAnExpiredCreditCart
+	| cart salesBook aProcessor |
+	cart _ testObjectsFactory createSingleItemCart.
+	salesBook _ OrderedCollection new.
+	aProcessor _ MerchantProcessorMock with: [ :aCashier :value | aCashier transactionMadeWith: value].
+	self
+		should: [
+			Cashier
+				toCheckout: cart
+				charging: testObjectsFactory expiredCreditCard
+				on: testObjectsFactory defaultMonthOfYear
+				registeringOn: salesBook
+				withMerchantProcessor: aProcessor ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
 			self assert: anError messageText = Cashier canNotChargeAnExpiredCreditCardErrorMessage.
-			self assert: salesBook isEmpty ]! !
+			self assert: salesBook isEmpty ].! !
 
-!CashierTest methodsFor: 'testing' stamp: 'L 6/13/2018 16:39:07'!
+!CashierTest methodsFor: 'testing' stamp: 'AB 6/14/2018 11:52:01'!
 test04CheckoutRegistersASale
-
-	| cart cashier salesBook total aProcessor|
-
-	cart := testObjectsFactory createCart.
-	cart add: testObjectsFactory itemSellByTheStore.
-	salesBook := OrderedCollection new.
-	aProcessor _ MerchantProcessorMock with: [:aCashier | aCashier transactionMade ].
-
- 
-	cashier:= Cashier 
-		toCheckout: cart 
+	| cart cashier salesBook aProcessor |
+	cart _ testObjectsFactory createSingleItemCart.
+	salesBook _ OrderedCollection new.
+	aProcessor _ MerchantProcessorMock with: [ :aCashier :value | aCashier transactionMadeWith: value].
+	cashier _ Cashier
+		toCheckout: cart
 		charging: testObjectsFactory notExpiredCreditCard
-		on: testObjectsFactory today
+		on: testObjectsFactory defaultMonthOfYear
 		registeringOn: salesBook
 		withMerchantProcessor: aProcessor.
-	total := cashier checkOut.
-					
+	cashier checkOut.
 	self assert: salesBook notEmpty.
-	self assert: salesBook first total = total.! !
+	self assert: salesBook first total = cashier purchaseValue.! !
 
-!CashierTest methodsFor: 'testing' stamp: 'L 6/13/2018 17:24:27'!
+!CashierTest methodsFor: 'testing' stamp: 'AB 6/14/2018 11:39:02'!
 test05CanNotCheckoutWithoutEnoughCredit
+	| aProcessor card |
+	card _ testObjectsFactory notExpiredCreditCard.
+	aProcessor _ MerchantProcessorMock with: [ :aCashier :value | aCashier notEnoughCredit ].
+	self checkErrorMessage: Cashier notEnoughtCreditErrorMessage WithProcessor: aProcessor AndCard: card.! !
 
-	| cart cashier salesBook aProcessor |
-
-	cart := testObjectsFactory createCart.
-	cart add: testObjectsFactory itemSellByTheStore.
-	salesBook := OrderedCollection new.
- 	aProcessor _ MerchantProcessorMock with: [:aCashier | aCashier notEnoughCredit].
-	
-	cashier:= Cashier 
-		toCheckout: cart 
-		charging: testObjectsFactory notExpiredCreditCard
-		on: testObjectsFactory today
-		registeringOn: salesBook
-		withMerchantProcessor: aProcessor.
-		
-	self should: [ cashier checkOut. ]
-	raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = Cashier notEnoughtCreditErrorMessage.
-			self assert: salesBook isEmpty ]	.! !
-
-!CashierTest methodsFor: 'testing' stamp: 'L 6/13/2018 17:24:47'!
+!CashierTest methodsFor: 'testing' stamp: 'AB 6/14/2018 11:39:07'!
 test06CanNotCheckoutWithAStolenCard
-
-	| cart cashier salesBook aProcessor |
-
-	cart := testObjectsFactory createCart.
-	cart add: testObjectsFactory itemSellByTheStore.
-	salesBook := OrderedCollection new.
- 	aProcessor _ MerchantProcessorMock with: [:aCashier | aCashier stolenCard].
-	
-	cashier:= Cashier 
-		toCheckout: cart 
-		charging: testObjectsFactory notExpiredCreditCard
-		on: testObjectsFactory today
-		registeringOn: salesBook
-		withMerchantProcessor: aProcessor.
-		
-	self should: [ cashier checkOut. ]
-	raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = Cashier stolenCardErrorMessage.
-			self assert: salesBook isEmpty ]	.! !
+	| aProcessor card |
+	card _ testObjectsFactory notExpiredCreditCard.
+	aProcessor _ MerchantProcessorMock with: [ :aCashier :value | aCashier stolenCard ].
+	self checkErrorMessage: Cashier stolenCardErrorMessage WithProcessor: aProcessor AndCard: card.! !
 
 
 !CashierTest methodsFor: 'setup' stamp: 'HernanWilkinson 6/17/2013 18:11'!
@@ -324,17 +290,23 @@ acceptingItemsOf: aCatalog
 
 !classDefinition: #Cashier category: #TusLibros!
 Object subclass: #Cashier
-	instanceVariableNames: 'cart creditCart salesBook merchantProcessor'
+	instanceVariableNames: 'cart creditCart salesBook merchantProcessor total'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'initialization' stamp: 'ABC 6/11/2018 19:05:52'!
+!Cashier methodsFor: 'initialization' stamp: 'AB 6/14/2018 11:46:39'!
 initializeToCheckout: aCart charging: aCreditCard registeringOn: aSalesBook withMerchantProcessor: aMerchantProcessor
+	| priceList |
+	
 	cart := aCart.
 	creditCart := aCreditCard.
 	salesBook := aSalesBook.
-	merchantProcessor _ aMerchantProcessor.! !
+	merchantProcessor _ aMerchantProcessor.
+	total _ 0.
+	
+	priceList _ cart catalog.
+	cart itemsDo: [ :anItem | total := total + (priceList at: anItem)].! !
 
 
 !Cashier methodsFor: 'error handling' stamp: 'ABC 6/11/2018 19:18:53'!
@@ -346,25 +318,19 @@ stolenCard
 	^self error: (self class stolenCardErrorMessage).! !
 
 
-!Cashier methodsFor: 'checkout' stamp: 'L 6/13/2018 16:23:37'!
+!Cashier methodsFor: 'checkout' stamp: 'AB 6/14/2018 11:51:26'!
 checkOut
-	
-	| priceList total |
-	
-	priceList := cart catalog.
-	total := 0.
-	cart itemsDo: [ :anItem | total := total + (priceList at: anItem)].
-	
-	merchantProcessor debit: total to: creditCart of: self.
-	salesBook add: (Sale of: total).
-	
+	merchantProcessor debit: total to: creditCart of: self.! !
+
+!Cashier methodsFor: 'checkout' stamp: 'AB 6/14/2018 11:46:04'!
+purchaseValue
 	^total! !
 
 
-!Cashier methodsFor: 'messages' stamp: 'L 6/13/2018 16:29:37'!
-transactionMade
-
-	^ ' The Transaction has been completed' . ! !
+!Cashier methodsFor: 'messages' stamp: 'AB 6/14/2018 11:50:40'!
+transactionMadeWith: value
+	salesBook add: (Sale of: value).
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -417,16 +383,16 @@ Object subclass: #CreditCard
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CreditCard methodsFor: 'initialization' stamp: 'HernanWilkinson 6/17/2013 18:38'!
-initializeExpiringOn: aMonth 
+!CreditCard methodsFor: 'initialization' stamp: 'AB 6/14/2018 10:42:58'!
+initializeExpiringOn: aMonthOfYear
 	
-	expiration := aMonth ! !
+	expiration := aMonthOfYear.! !
 
 
-!CreditCard methodsFor: 'checking' stamp: 'HernanWilkinson 6/17/2013 18:39'!
-isExpiredOn: aDate 
+!CreditCard methodsFor: 'checking' stamp: 'AB 6/14/2018 10:44:01'!
+isExpiredOn: aMonthOfYear
 	
-	^expiration start < (Month month: aDate monthIndex year: aDate yearNumber) start ! !
+	^expiration < aMonthOfYear.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -452,9 +418,9 @@ initializeWith: aBlockClosure
 	responseBlock _ aBlockClosure.! !
 
 
-!MerchantProcessorMock methodsFor: 'accessing' stamp: 'ABC 6/11/2018 19:16:09'!
+!MerchantProcessorMock methodsFor: 'accessing' stamp: 'AB 6/14/2018 11:38:16'!
 debit: anAmount to: aCreditCard of: aCashier
-	responseBlock value: aCashier.! !
+	responseBlock value: aCashier value: anAmount.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -469,24 +435,6 @@ with: aBlockClosure
 
 !MerchantProcessorMock class methodsFor: 'as yet unclassified' stamp: 'ABC 6/11/2018 19:00:54'!
 initializeWith: aBlockClosure 
-	self shouldBeImplemented.! !
-
-
-!classDefinition: #MonthOfYear category: #TusLibros!
-Object subclass: #MonthOfYear
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'MonthOfYear class' category: #TusLibros!
-MonthOfYear class
-	instanceVariableNames: ''!
-
-!MonthOfYear class methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:34'!
-of: aDate 
 	self shouldBeImplemented.! !
 
 
@@ -523,15 +471,18 @@ of: aTotal
 
 !classDefinition: #StoreTestObjectsFactory category: #TusLibros!
 Object subclass: #StoreTestObjectsFactory
-	instanceVariableNames: 'today'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!StoreTestObjectsFactory methodsFor: 'cart' stamp: 'HernanWilkinson 6/17/2013 18:08'!
-createCart
-	
-	^Cart acceptingItemsOf: self defaultCatalog! !
+!StoreTestObjectsFactory methodsFor: 'cart' stamp: 'AB 6/14/2018 10:53:59'!
+createEmptyCart
+	^ Cart acceptingItemsOf: self defaultCatalog.! !
+
+!StoreTestObjectsFactory methodsFor: 'cart' stamp: 'AB 6/14/2018 10:55:25'!
+createSingleItemCart
+	^ self createEmptyCart add: self itemSellByTheStore.! !
 
 !StoreTestObjectsFactory methodsFor: 'cart' stamp: 'HernanWilkinson 6/17/2013 18:08'!
 defaultCatalog
@@ -541,25 +492,17 @@ defaultCatalog
 		yourself ! !
 
 
-!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:37'!
+!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'AB 6/14/2018 10:59:40'!
+defaultMonthOfYear
+	^ GregorianMonthOfYear current.! !
+
+!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'AB 6/14/2018 10:59:40'!
 expiredCreditCard
-	
-	^CreditCard expiringOn: (Month month: today monthIndex year: today yearNumber - 1)! !
+	^ CreditCard expiringOn: (self defaultMonthOfYear previousMonth: January).! !
 
-!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:37'!
-initialize
-
-	today := DateAndTime now! !
-
-!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:36'!
+!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'AB 6/14/2018 10:59:40'!
 notExpiredCreditCard
-	
-	^CreditCard expiringOn: (Month month: today monthIndex year: today yearNumber + 1)! !
-
-!StoreTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:37'!
-today
-	
-	^ today! !
+	^ CreditCard expiringOn: (self defaultMonthOfYear nextMonth: January).! !
 
 
 !StoreTestObjectsFactory methodsFor: 'items' stamp: 'HernanWilkinson 6/17/2013 18:08'!
