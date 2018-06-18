@@ -265,38 +265,38 @@ setUp
 	debitBehavior := [ :anAmount :aCreditCard | ].! !
 
 
-!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'Luis 6/17/2018 15:35:04'!
-test01CreateCartWithValidData
+!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'A 6/18/2018 00:39:23'!
+test01CanCreateCartWithValidData
+	| interface cart |
 
-	| interface cart|.
-	interface _ TusLibrosRestInterface new initializeWith: (testObjectsFactory defaultCatalog).
-	
-	cart _ interface createCartwith:'Usuario Valido' and:'Contraseña Valida'.
-	
-	self assert: cart = 1 .
-	! !
+	interface _ testObjectsFactory defaultInterface.
+	cart _ interface
+		createCartwith: testObjectsFactory validUsername 
+		and: testObjectsFactory validPassword.
+	self assert: cart = 1.! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'Luis 6/17/2018 15:35:16'!
-test02CreateTwoCarts
+!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'A 6/18/2018 00:40:50'!
+test02CanIdentifyTwoDiferentCarts
+	| interface cart1 cart2 |
 
-	| interface cart1 cart2|.
-	interface _ TusLibrosRestInterface new initializeWith: (testObjectsFactory defaultCatalog).
-	
-	cart1 _ interface createCartwith:'Usuario Valido' and:'Contraseña Valida'.
-	cart2 _ interface createCartwith:'Usuario Valido' and:'Contraseña Valida'.
-	
-	self assert: cart1 = 1 .
-	self assert: cart2 = 2 .
-	! !
+	interface _ testObjectsFactory defaultInterface.
+	cart1 _ interface
+		createCartwith: testObjectsFactory validUsername 
+		and: testObjectsFactory validPassword.
+	cart2 _ interface
+		createCartwith: testObjectsFactory validUsername
+		and: testObjectsFactory validPassword.
+	self assert: cart1 = 1.
+	self assert: cart2 = 2.! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'Luis 6/17/2018 15:35:23'!
+!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'A 6/18/2018 00:41:36'!
 test03CannotCreateCartWithInvalidPassword
 
 	| interface |.
-	interface _ TusLibrosRestInterface new initializeWith: (testObjectsFactory defaultCatalog).
+	interface _ testObjectsFactory defaultInterface.
 	
 		self 
-		should: [interface createCartwith:'Usuario Valido' and:'Contraseña Invalida'. ]
+		should: [interface createCartwith: testObjectsFactory validUsername and: testObjectsFactory invalidPassword. ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = TusLibrosRestInterface invalidPasswordErrorMessage.
@@ -309,14 +309,14 @@ test03CannotCreateCartWithInvalidPassword
 
 	! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'Luis 6/17/2018 15:35:34'!
+!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'A 6/18/2018 00:43:09'!
 test04CannotCreateCartWithInvalidUser
 
 	| interface |.
-	interface _ TusLibrosRestInterface new initializeWith: (testObjectsFactory defaultCatalog).
+	interface _ testObjectsFactory defaultInterface.
 	
 		self 
-		should: [interface createCartwith:'Usuario Invalido' and:'Contraseña Invalida'. ]
+		should: [interface createCartwith: testObjectsFactory invalidUsername and: testObjectsFactory invalidPassword. ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = TusLibrosRestInterface invalidUserErrorMessage.
@@ -329,20 +329,18 @@ test04CannotCreateCartWithInvalidUser
 
 	! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'Luis 6/17/2018 15:35:42'!
-test05ListEmptyCart
+!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'A 6/18/2018 01:22:58'!
+test05ShouldNotAssignCartIdToWhenLoginWasInvalid
 
-	| interface cart |.
-	interface _ TusLibrosRestInterface new initializeWith: (testObjectsFactory defaultCatalog).
-	cart _ interface createCartwith:'Usuario Valido' and:'Contraseña Valida'.
+	| interface |.
+	interface _ testObjectsFactory defaultInterface.
 	
-	self assert: (interface listCart: cart) = nil.
-	
-	
-	
-	
-	
-
+	self 
+	should: [interface createCartwith: testObjectsFactory validUsername and: testObjectsFactory invalidPassword.  ]
+	raise: Error - MessageNotUnderstood
+	withExceptionDo: [ :anError |
+		self assert: (interface createCartwith: testObjectsFactory validUsername and: testObjectsFactory validPassword) = 1.
+	].
 	
 
 
@@ -351,40 +349,20 @@ test05ListEmptyCart
 
 	! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'Luis 6/17/2018 15:35:48'!
-test06CanAddToCartWithValidData
+!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'A 6/18/2018 01:24:28'!
+test06ShouldNotAddItemsIfCartIdDoesNotExist
 
 	| interface cart |.
-	interface _ TusLibrosRestInterface new initializeWith: (testObjectsFactory defaultCatalog).
-	cart _ interface createCartwith:'Usuario Valido' and:'Contraseña Valida'.
-	interface addToCart:cart  ISBN:'validBook'  Quantity:1. 
-
-	 
-	self assert: ((interface getActiveCarts at:cart) includes:testObjectsFactory itemSellByTheStore).
-	self assert: ((interface getActiveCarts at:cart) occurrencesOf: (testObjectsFactory itemSellByTheStore)) = 1 .
-
-
-	
-
-	
-
-
+	interface _ testObjectsFactory defaultInterface.
+	cart _ interface createCartwith: testObjectsFactory validUsername and: testObjectsFactory validPassword.
 	
 	
-
-	! !
-
-!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'Luis 6/17/2018 15:35:54'!
-test07ListNotEmptyCart
-
-	| interface cart |.
-	interface _ TusLibrosRestInterface new initializeWith: (testObjectsFactory defaultCatalog).
-	cart _ interface createCartwith:'Usuario Valido' and:'Contraseña Valida'.
-	(interface getActiveCarts at:cart) add:'validBook'.
-
-	 
-	self assert: ((interface getActiveCarts at:cart) includes:testObjectsFactory itemSellByTheStore).
-	self assert: ((interface getActiveCarts at:cart) occurrencesOf: (testObjectsFactory itemSellByTheStore)) = 1 .
+	self 
+	should: [interface addToCart: (cart + 1) ISBN: testObjectsFactory itemSellByTheStore Quantity: 1.]
+	raise: Error - MessageNotUnderstood
+	withExceptionDo: [ :anError |
+		self assert: anError messageText = TusLibrosRestInterface invalidCartIDErrorMessage.
+	].
 
 
 	
@@ -397,17 +375,30 @@ test07ListNotEmptyCart
 
 	! !
 
-!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'L 6/17/2018 19:14:35'!
+!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'A 6/18/2018 01:21:27'!
+test07CanAddItemsWithAValidCartID
+	| interface cart |
+	interface _ testObjectsFactory defaultInterface.
+	cart _ interface
+		createCartwith: testObjectsFactory validUsername
+		and: testObjectsFactory validPassword.
+	interface
+		addToCart: cart
+		ISBN: testObjectsFactory itemSellByTheStore
+		Quantity: 2.
+	self assert: ((interface listCart: cart) includesKey: testObjectsFactory itemSellByTheStore).
+	self assert: ((interface listCart: cart) at: testObjectsFactory itemSellByTheStore) = 2.! !
+
+!TusLibrosRestInterfaceTest methodsFor: 'testing' stamp: 'A 6/18/2018 01:40:30'!
 test08CheckoutCartReturnsTransactionID
 
-	| interface cart |.
-	interface _ TusLibrosRestInterface new initializeWith: (testObjectsFactory defaultCatalog).
-	cart _ interface createCartwith:'Usuario Valido' and:'Contraseña Valida'.
-	(interface getActiveCarts at:cart) add:'validBook'.
+	| interface cart card |.
+	card _ testObjectsFactory notExpiredCreditCard.
+	interface _ testObjectsFactory defaultInterface.
+	cart _ interface createCartwith: testObjectsFactory validUsername and: testObjectsFactory validPassword.
+	
+	interface addToCart: cart ISBN: testObjectsFactory itemSellByTheStore Quantity: 2.
 
-	 
-	self assert: ((interface getActiveCarts at:cart) includes:testObjectsFactory itemSellByTheStore).
-	self assert: ((interface getActiveCarts at:cart) occurrencesOf: (testObjectsFactory itemSellByTheStore)) = 1 .
 
 
 	
@@ -500,6 +491,11 @@ itemsAsSet
 	| result |.
 	result _ items asSet .
 	^ result .! !
+
+!Cart methodsFor: 'as yet unclassified' stamp: 'A 6/18/2018 01:16:39'!
+listItems
+
+	^items inject: Dictionary new into: [:aResult :anItem | aResult at: anItem put: (self occurrencesOf: anItem). aResult]! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -606,7 +602,7 @@ creditCardHasNoCreditErrorMessage
 
 !classDefinition: #CreditCard category: #TusLibros!
 Object subclass: #CreditCard
-	instanceVariableNames: 'expiration'
+	instanceVariableNames: 'expiration serialNumber ownerName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -617,10 +613,12 @@ isExpiredOn: aDate
 	^expiration start < (Month month: aDate monthIndex year: aDate yearNumber) start ! !
 
 
-!CreditCard methodsFor: 'initialization' stamp: 'HernanWilkinson 6/17/2013 18:38'!
-initializeExpiringOn: aMonth 
+!CreditCard methodsFor: 'initialization' stamp: 'A 6/18/2018 01:30:53'!
+initializeExpiringOn: aMonth withNumber: aNumber andOwnerName: aName
 	
-	expiration := aMonth ! !
+	expiration _ aMonth.
+	serialNumber _ aNumber.
+	ownerName _ aName.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -628,10 +626,10 @@ initializeExpiringOn: aMonth
 CreditCard class
 	instanceVariableNames: ''!
 
-!CreditCard class methodsFor: 'instance creation' stamp: 'HernanWilkinson 6/17/2013 18:38'!
-expiringOn: aMonth 
+!CreditCard class methodsFor: 'instance creation' stamp: 'A 6/18/2018 01:30:02'!
+expiringOn: aMonth withNumber: aNumber andOwnerName: aName
 	
-	^self new initializeExpiringOn: aMonth! !
+	^self new initializeExpiringOn: aMonth withNumber: aNumber andOwnerName: aName! !
 
 
 !classDefinition: #Sale category: #TusLibros!
@@ -701,15 +699,15 @@ defaultCatalog
 		yourself ! !
 
 
-!StoreTestObjectsFactory methodsFor: 'credit card' stamp: 'HernanWilkinson 6/17/2013 18:37'!
+!StoreTestObjectsFactory methodsFor: 'credit card' stamp: 'A 6/18/2018 01:32:27'!
 expiredCreditCard
 	
-	^CreditCard expiringOn: (Month month: today monthIndex year: today yearNumber - 1)! !
+	^CreditCard expiringOn: (Month month: today monthIndex year: today yearNumber - 1) withNumber: 1234 andOwnerName: 'A Name'.! !
 
-!StoreTestObjectsFactory methodsFor: 'credit card' stamp: 'HernanWilkinson 6/17/2013 18:36'!
+!StoreTestObjectsFactory methodsFor: 'credit card' stamp: 'A 6/18/2018 01:32:12'!
 notExpiredCreditCard
 	
-	^CreditCard expiringOn: (Month month: today monthIndex year: today yearNumber + 1)! !
+	^CreditCard expiringOn: (Month month: today monthIndex year: today yearNumber + 1) withNumber: 1234 andOwnerName: 'A Name'.! !
 
 
 !StoreTestObjectsFactory methodsFor: 'initialization' stamp: 'HernanWilkinson 6/17/2013 18:37'!
@@ -723,38 +721,65 @@ today
 	
 	^ today! !
 
+
+!StoreTestObjectsFactory methodsFor: 'apiRest' stamp: 'A 6/18/2018 00:39:09'!
+defaultInterface
+	
+	^ TusLibrosRestInterface sellingItemsFrom: self defaultCatalog withUserbase: self defaultUserBase.! !
+
+!StoreTestObjectsFactory methodsFor: 'apiRest' stamp: 'A 6/18/2018 00:31:49'!
+defaultUserBase
+	
+	^ Dictionary new
+		at: self validUsername put: self validPassword;
+		yourself ! !
+
+!StoreTestObjectsFactory methodsFor: 'apiRest' stamp: 'A 6/18/2018 00:41:55'!
+invalidPassword
+	
+	^'Invalid Password'! !
+
+!StoreTestObjectsFactory methodsFor: 'apiRest' stamp: 'A 6/18/2018 00:42:09'!
+invalidUsername
+	
+	^'Invalid username'! !
+
+!StoreTestObjectsFactory methodsFor: 'apiRest' stamp: 'A 6/18/2018 00:24:04'!
+validPassword
+	
+	^'Valid Password'! !
+
+!StoreTestObjectsFactory methodsFor: 'apiRest' stamp: 'A 6/18/2018 00:23:56'!
+validUsername
+	
+	^'Valid User'! !
+
 
 !classDefinition: #TusLibrosRestInterface category: #TusLibros!
 Object subclass: #TusLibrosRestInterface
-	instanceVariableNames: 'cartIdCounter activeCarts catalog transactionIDCounter ListOfPurchasesByClient lastActivityTime'
+	instanceVariableNames: 'logins cartIdCounter carts activeCarts catalog transactionIDCounter ListOfPurchasesByClient lastActivityTime'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosRestInterface methodsFor: 'private-testing' stamp: 'Luis 6/17/2018 17:49:34'!
-setCart:aCart lastActiveTime:aTime
 
-	lastActivityTime at:aCart put:aTime .! !
-
-
-!TusLibrosRestInterface methodsFor: 'initialization' stamp: 'L 6/17/2018 18:59:40'!
-initializeWith:aCatalog
-
+!TusLibrosRestInterface methodsFor: 'initialization' stamp: 'A 6/18/2018 01:05:07'!
+initializeWith: aCatalog and: aUserBase
 	cartIdCounter _ 0.
-	transactionIDCounter _ 0.	
+	transactionIDCounter _ 0.
 	activeCarts _ Dictionary new.
-	catalog _ aCatalog .
+	catalog _ aCatalog.
+	logins _ aUserBase.
+	carts _ Dictionary new.
 	lastActivityTime _ Dictionary new.! !
 
 
-!TusLibrosRestInterface methodsFor: 'public methos' stamp: 'L 6/17/2018 19:04:18'!
-addToCart:aCartID ISBN:aISBN Quantity:aNumber
+!TusLibrosRestInterface methodsFor: 'public methos' stamp: 'A 6/18/2018 01:11:46'!
+addToCart:aCartID ISBN:aISBN Quantity: aQuantity
 
 	self assertValidCartID: aCartID .
-	self assertCart:aCartID isAlive:DateAndTime now.
 
-	(self getCart: aCartID ) add:aNumber of:aISBN .
-	self setCart: aCartID lastActiveTime: DateAndTime now.! !
+	(carts at: aCartID) add: aQuantity of: aISBN.! !
 
 !TusLibrosRestInterface methodsFor: 'public methos' stamp: 'L 6/17/2018 19:07:17'!
 checkoutCart:aCartId withThisCreditCard:aCreditCardNumber expires:aExpirationDate name:aName currentTime:aTime andProcessor:aProcessor xx:anSalesbook
@@ -774,22 +799,22 @@ checkoutCart:aCartId withThisCreditCard:aCreditCardNumber expires:aExpirationDat
 	activeCarts removeKey:aCartId .
 	^ transactionIDCounter .! !
 
-!TusLibrosRestInterface methodsFor: 'public methos' stamp: 'L 6/17/2018 19:03:03'!
-createCartwith: anUserName and: aPassword
-	anUserName = 'Usuario Valido' ifFalse: [ ^ self error: TusLibrosRestInterface invalidUserErrorMessage ].
-	aPassword = 'Contraseña Valida' ifFalse: [ ^ self error: TusLibrosRestInterface invalidPasswordErrorMessage ].
+!TusLibrosRestInterface methodsFor: 'public methos' stamp: 'A 6/18/2018 01:05:57'!
+createCartwith: aUsername and: aPassword
+	self assertValidUsername: aUsername.
+	self assertValidPassword: aPassword of: aUsername.
 	cartIdCounter _ cartIdCounter + 1.
+	carts at: cartIdCounter put: (Cart acceptingItemsOf: catalog).
 	activeCarts add: cartIdCounter ->(Cart new initializeAcceptingItemsOf: catalog).
 	lastActivityTime add:cartIdCounter -> DateAndTime now .
 	^ cartIdCounter.! !
 
-!TusLibrosRestInterface methodsFor: 'public methos' stamp: 'Luis 6/17/2018 17:55:34'!
+!TusLibrosRestInterface methodsFor: 'public methos' stamp: 'A 6/18/2018 01:16:00'!
 listCart:aCartID
 
 	self assertValidCartID: aCartID.
-	self assertCart: aCartID isAlive: DateAndTime now.
 		
-	^ nil. 
+	^ (carts at: aCartID) listItems. 
 	
 	
 	
@@ -811,36 +836,18 @@ listPurchases:aClientID with:aPassword
 assertCart: aCartID isAlive:aTime
 	^ true.! !
 
-!TusLibrosRestInterface methodsFor: 'assertions' stamp: 'Luis 6/17/2018 18:03:11'!
-assertValid:aUsername andPassword:aPassword
+!TusLibrosRestInterface methodsFor: 'assertions' stamp: 'A 6/18/2018 01:09:24'!
+assertValidCartID: aCartId
+	(carts includesKey: aCartId) ifFalse: [ ^ self error: self class invalidCartIDErrorMessage ].! !
 
-	^ true.! !
+!TusLibrosRestInterface methodsFor: 'assertions' stamp: 'A 6/18/2018 00:37:10'!
+assertValidPassword: aPassword of: aUsername
+	(logins at: aUsername) = aPassword ifFalse: [ ^ self error: TusLibrosRestInterface invalidPasswordErrorMessage ].! !
 
-!TusLibrosRestInterface methodsFor: 'assertions' stamp: 'Luis 6/17/2018 17:41:07'!
-assertValidCartID:aCartId
+!TusLibrosRestInterface methodsFor: 'assertions' stamp: 'A 6/18/2018 00:34:19'!
+assertValidUsername: aUsername
+	(logins includesKey: aUsername) ifFalse: [ ^ self error: TusLibrosRestInterface invalidUserErrorMessage ].! !
 
-	(aCartId > cartIdCounter ) ifTrue: [^self error: self invalidCartID ].! !
-
-
-!TusLibrosRestInterface methodsFor: 'errorMessages' stamp: 'Luis 6/17/2018 17:40:39'!
-invalidCartID
-
-	^' The CartID provided is invalid'! !
-
-
-!TusLibrosRestInterface methodsFor: 'private' stamp: 'L 6/17/2018 19:08:51'!
-addItemstoPurchaseList:aCartID toThisClient:aClientID
-
-! !
-
-!TusLibrosRestInterface methodsFor: 'private' stamp: 'ABC 6/14/2018 21:29:38'!
-getActiveCarts
-
-	^ activeCarts .! !
-
-!TusLibrosRestInterface methodsFor: 'private' stamp: 'ABC 6/17/2018 00:10:29'!
-getCart: aCartID
-	^ activeCarts at: aCartID.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -848,17 +855,21 @@ getCart: aCartID
 TusLibrosRestInterface class
 	instanceVariableNames: ''!
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'ABC 6/14/2018 21:21:06'!
-initializeWith:aCatalog
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'A 6/18/2018 01:09:24'!
+invalidCartIDErrorMessage
+	^ ' The CartID provided is invalid'.! !
 
-	^ self class new initializeWith: aCatalog .! !
-
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'ABC 6/14/2018 20:19:19'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'ABC 6/14/2018 20:19:19'!
 invalidPasswordErrorMessage
 
 	^ ' Password Invalida '.! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'ABC 6/14/2018 20:23:28'!
+!TusLibrosRestInterface class methodsFor: 'error messages' stamp: 'ABC 6/14/2018 20:23:28'!
 invalidUserErrorMessage
 
 	^ ' Usuario Invalido '.! !
+
+
+!TusLibrosRestInterface class methodsFor: 'instance creation' stamp: 'A 6/18/2018 00:29:26'!
+sellingItemsFrom: aCatalog withUserbase: aLoginDictionary
+	^ self new initializeWith: aCatalog and: aLoginDictionary.! !
